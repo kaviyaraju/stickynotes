@@ -1,7 +1,6 @@
 import React from "react";
 import StickyNote from "./StickyNote";
 
-
 function randomBetween(x, y, s) {
   return (x + Math.ceil(Math.random() * (y-x))) + s;
 }
@@ -19,12 +18,13 @@ class Board extends React.Component {
           sticky : Array.apply(null, {length: props.count}).map(i => ({
             editing: false,
             note: "This is my first sticky Note!!! ",
-            checkedyn: false,
+            checkedyn: 0,
             style: {
               top: randomBetween(0, window.innerHeight - 150, "px"),
               left: randomBetween(0, window.innerWidth - 150, "px"),
-            }
-          }))
+            },
+          })),
+          display: 'all',
          }
       }
       return state;
@@ -92,7 +92,7 @@ class Board extends React.Component {
    });
   }
 
-  addSticky = e => {
+  addSticky = () => {
     this.setState(prevstate => {
       return {
         ...prevstate,
@@ -111,15 +111,62 @@ class Board extends React.Component {
    });
   }
 
-  render() {
+  partDisplayMode = (e) => {
+    if (e.target.value === 'completed') {
+      this.setState({
+        display : 'completed'
+      });
+    }
+    else if (e.target.value === 'pending') {
+      this.setState({
+        display : 'pending'
+      });
+    }
+    else if (e.target.value === 'all') {
+      this.setState({
+        display : 'all'
+      });
+    }
+  }
+  
+
+render() {
     return (
         <div>
           <header>
             <button onClick={this.addSticky}>Add new StickyNote</button>
-            <select><option value='all'>ALL</option></select>
+            <select defaultValue='all' onChange={this.partDisplayMode}>
+            <option value='all' >ALL</option>
+            <option value='pending'>PENDING</option>
+            <option value='completed'>COMPLETED</option>
+            </select>
           </header>
-           {
-               this.state.sticky.map((sticky,i) => (
+              {
+                this.state.display === "completed" ?
+                this.state.sticky.filter(sticky => sticky.checkedyn).map((sticky,i) => (
+                  <StickyNote 
+                    sticky={sticky} 
+                    key={i} 
+                    index={i}
+                    onEditMode={this.handleEditMode(i)}
+                    onDisplayMode={this.handleDisplayMode(i)}
+                    onChecked={this.onCheckboxchange(i)}
+                    onDelete={this.handleDeleteMode(i)}
+                />
+                ))
+                : this.state.display === "pending" ?
+                this.state.sticky.filter(sticky => !sticky.checkedyn).map((sticky,i) => (
+                  <StickyNote 
+                    sticky={sticky} 
+                    key={i} 
+                    index={i}
+                    onEditMode={this.handleEditMode(i)}
+                    onDisplayMode={this.handleDisplayMode(i)}
+                    onChecked={this.onCheckboxchange(i)}
+                    onDelete={this.handleDeleteMode(i)}
+                />
+              ))
+               : this.state.sticky.map((sticky,i) => (
                   <StickyNote 
                     sticky={sticky} 
                     key={i} 
@@ -130,7 +177,7 @@ class Board extends React.Component {
                     onDelete={this.handleDeleteMode(i)}
                 />
                ))
-           }
+              }
         </div>
       );
   }

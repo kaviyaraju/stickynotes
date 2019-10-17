@@ -3,12 +3,6 @@ import Draggable from "react-draggable";
 
 class StickyNote extends React.Component {
 
-  handleChange(event) {
-    this.setState({
-        note: event.target.value
-    });
-  }
-
   renderDisplayMode() {
     const {sticky} = this.props;
     var classtouse = "sticky";
